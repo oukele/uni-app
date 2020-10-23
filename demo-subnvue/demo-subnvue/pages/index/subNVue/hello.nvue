@@ -1,0 +1,79 @@
+<template>
+	<div>
+		<text class="hello">{{ content }}</text>
+		<button style="margin-bottom: 10rpx;" @click="clickFun('1')">子窗体向父窗体传递参数1</button>
+		<button style="margin-bottom: 10rpx;" @click="clickFun('2')">子窗体向父窗体传递参数2</button>
+		<button @click="clickFun('3')">子窗体向父窗体传递参数3</button>
+	</div>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				// 父窗体传递过来的内容
+				content: ''
+			}
+		},
+		created() {
+			const vm = this;
+			// 接收信息的页面
+			uni.$on('hello-popup', (data) => {
+				switch( data.type ){
+					case 'one':
+						vm.content = data.content;
+					break;
+					case 'two':
+						vm.content = data.content;
+					break;
+					case 'three':
+						vm.content = data.content;
+					break;
+					// .... 
+				}
+			});
+		},
+		beforeDestroy() {
+			// 页面销毁之前 移除监听器
+			uni.$off('hello-popup');
+			// 
+			this.content = '';
+		},
+		methods: {
+			
+			clickFun(param){
+				
+				let content = '';
+				if( param == '1' ){
+					content = '子窗体向父窗体传递参数1';
+				} else if ( param == '2' ){
+					content = '子窗体向父窗体传递参数2';
+				} else if ( param == '3' ){
+					content = '子窗体向父窗体传递参数3';
+				}
+				
+				// 获取当前 subNVues 原生子窗体的实例。
+				const subNVue = uni.getCurrentSubNVue();
+				// 向父窗体传递参数
+				uni.$emit('hello-popup',{
+					type: param,
+					param: content
+				});
+				// 子窗体隐藏
+				// 可自定义 隐藏动画效果，时间
+				subNVue.hide();
+				
+			}
+			
+		}
+	}
+</script>
+
+<style>
+	.hello {
+		font-size: 30px;
+		color: #007AFF;
+		text-align: center;
+		line-height: 600rpx;
+	}
+</style>
